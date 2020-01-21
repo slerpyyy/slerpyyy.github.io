@@ -3,11 +3,11 @@
 	<head>
 		<title>This is slerpy</title>
 
+		<meta name="viewport" content="width=device-width">
+		<meta charset="utf-8">
+
 		<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
 		<link href="favicon.png" rel="icon">
-
-		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
-		<meta charset="utf-8">
 
 		<script id="vsh" type="x-shader/x-vertex">
 			precision mediump float;
@@ -15,10 +15,7 @@
 			attribute vec3 pos;
 			varying vec2 uv;
 
-			void main(void) {
-				uv = pos.xy;
-				gl_Position = vec4(pos, 1);
-			}
+			void main(void){uv=pos.xy;gl_Position=vec4(pos,1);}
 		</script>
 
 		<script id="fsh" type="x-shader/x-fragment">
@@ -27,60 +24,30 @@
 			uniform float time;
 			uniform float aspect;
 			varying vec2 uv;
+			mat2 rm;
 
-			mat2 rot(float a)
-			{
-				float s=sin(a), c=cos(a);
-				return mat2(s, c, -c, s);
-			}
-
-			float cube(vec3 p)
-			{
-				return length(max(abs(p)-.5, 0.));
-			}
+			mat2 rot(float a){float s=sin(a),c=cos(a);return mat2(s,c,-c,s);}
+			float cube(vec3 p){return length(max(abs(p)-.5,0.));}
 
 			float map(vec3 p)
 			{
-				float d = cube(p);
-
-				mat2 rm = rot(-time/3. + length(p));
-				p.xy *= rm, p.zy *= rm;
-
-				p = abs(p) - time;
-				p = abs(p - floor(p + 0.5));
-
-				rm = rot(time);
-				p.xy *= rm, p.xz *= rm;
-
-				return min(d, min(min(length(p.xy), length(p.yz)), length(p.xz)) + .01);
+				float d=cube(p);
+				p.xy*=rm=rot(-time/3.+length(p));p.zy*=rm;
+				p=abs(p)-time;p=abs(p-floor(p+.5));
+				p.xy*=rm=rot(time);p.xz*=rm;
+				return min(d,min(min(length(p.xy),length(p.yz)),length(p.xz))+.01);
 			}
 
 			void main(void)
 			{
-				vec2 u = uv * vec2(aspect, 1);
-				vec3 rd = normalize(vec3(u, 1));
-				vec3 ro = vec3(0, 0, -2);
-
-				mat2 r1 = rot(time/4.), r2 = rot(time/2.);
-				rd.xz *= r1, ro.xz *= r1, rd.yz *= r2, ro.yz *= r2;
-
-				vec3 p;
-				float m, t = .0;
-				const int iter = 20;
-				float fade = 1.0 - exp(-0.2 * time - 0.1);
-
-				for(int i=0; i<iter; i++)
-				{
-					p = ro + rd * t;
-					m = map(p);
-					t += 0.45 * fade * m;
-					if(m < 0.01)break;
-				}
-
-				float burn = pow(cube(p)-m, 2.);
-
-				gl_FragColor.xyz = fade * vec3(1.-burn, exp(-t), exp(-t/2.));
-				gl_FragColor.w = 1.0;
+				vec2 u=uv*vec2(aspect,1);
+				vec3 p,rd=normalize(vec3(u,1)),ro=vec3(0,0,-2);
+				rd.xz*=rm=rot(time/4.);ro.xz*=rm;
+				rd.yz*=rm=rot(time/2.);ro.yz*=rm;
+				float m,b,t=.0,fade=1.-exp(-.2*time-.1);
+				for(int i=0; i<20; i++){t+=0.45*fade*(m=map(p=ro+rd*t));if(m<.01)break;}
+				b=cube(p)-m;
+				gl_FragColor=vec4(fade*vec3(1.-b*b,exp(-t),exp(-t/2.)),1);
 			}
 		</script>
 

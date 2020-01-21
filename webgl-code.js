@@ -6,8 +6,9 @@ var timeUniform;
 var aspectUniform;
 
 var prog;
-var vertexBuffer;
+var rect;
 
+var startTime;
 var time;
 var aspect;
 
@@ -48,30 +49,21 @@ function setupShaders() {
 }
 
 function setupBuffers() {
-	vertexBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-
-	var vertices = [
-		-1, -1,  0,
-		-1,  1,  0,
-		 1, -1,  0,
-		 1, -1,  0,
-		 1,  1,  0,
-		-1,  1,  0,
-	];
-
+	var vertices = [-1,-1,0,-1,1,0,1,-1,0,1,-1,0,1,1,0,-1,1,0];
+	rect = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, rect);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 }
 
 function draw() {
-	time += 1 / framerate;
+	time = ((new Date()).getTime() - startTime) / 1000.0;
 	aspect = canvas.clientWidth / canvas.clientHeight;
 
 	gl.uniform1f(timeUniform, time);
 	gl.uniform1f(aspectUniform, aspect);
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	gl.clear(gl.COLOR_BUFFER_BIT);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+	gl.bindBuffer(gl.ARRAY_BUFFER, rect);
 	gl.vertexAttribPointer(posAttribute, 3, gl.FLOAT, false, 3 * 4, 0);
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 }
@@ -79,8 +71,8 @@ function draw() {
 function setupWebGL() {
 	canvas = document.getElementById("bg-live");
 
-	canvas.width = canvas.clientWidth / 8;
-	canvas.height = canvas.clientHeight / 8;
+	canvas.width = canvas.clientWidth / 4;
+	canvas.height = canvas.clientHeight / 4;
 
 	try {
 		gl = canvas.getContext("webgl");
@@ -90,10 +82,8 @@ function setupWebGL() {
 
 	setupShaders();
 	setupBuffers();
-	time = 0;
 
-	gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	gl.enable(gl.DEPTH_TEST);
+	startTime = (new Date()).getTime();
 
 	setInterval(draw, 1000 / framerate);
 }
