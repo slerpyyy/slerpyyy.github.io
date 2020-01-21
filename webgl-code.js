@@ -9,10 +9,9 @@ var prog;
 var rect;
 
 var startTime;
+var currTime;
 var time;
 var aspect;
-
-const framerate = 60.0;
 
 function getShader(id, type) {
 	var shader = gl.createShader(type);
@@ -56,7 +55,10 @@ function setupBuffers() {
 }
 
 function draw() {
-	time = ((new Date()).getTime() - startTime) / 1000.0;
+	requestAnimationFrame(draw);
+
+	currTime = (new Date()).getTime()
+	time = (currTime - startTime) / 1000.0;
 	aspect = canvas.clientWidth / canvas.clientHeight;
 
 	gl.uniform1f(timeUniform, time);
@@ -85,5 +87,5 @@ function setupWebGL() {
 
 	startTime = (new Date()).getTime();
 
-	setInterval(draw, 1000 / framerate);
+	requestAnimationFrame(draw);
 }
