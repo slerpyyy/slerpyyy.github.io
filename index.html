@@ -11,45 +11,37 @@
 
 		<script id="vsh" type="x-shader/x-vertex">
 			precision mediump float;
-
 			attribute vec3 pos;
 			varying vec2 uv;
-
 			void main(void){uv=pos.xy;gl_Position=vec4(pos,1);}
 		</script>
 
 		<script id="fsh" type="x-shader/x-fragment">
 			precision mediump float;
-
 			uniform float time;
 			uniform float aspect;
 			uniform vec2 mouse;
 			varying vec2 uv;
 			mat2 rm;
-
 			mat2 rot(float a){float s=sin(a),c=cos(a);return mat2(s,c,-c,s);}
 			float cube(vec3 p){return length(max(abs(p)-.5,0.));}
-
-			float map(vec3 p)
-			{
+			float map(vec3 p){
 				float d=cube(p);
-				p.xy*=rm=rot(-time/3.+length(p));p.zy*=rm;
+				rm=rot(-time/3.+length(p));p.xy*=rm;p.zy*=rm;
 				p=abs(p)-time;p=abs(p-floor(p+.5));
-				p.xy*=rm=rot(time);p.xz*=rm;
+				rm=rot(time);p.xy*=rm;p.xz*=rm;
 				return min(d,min(min(length(p.xy),
 				length(p.yz)),length(p.xz))+.01);
 			}
-
-			void main(void)
-			{
+			void main(void){
 				vec2 u=uv*vec2(aspect,1),off=.6*atan(mouse-.5);
 				vec3 p,rd=normalize(vec3(u-.5*off,1)),ro=vec3(off,-2);
-				rd.xz*=rm=rot(time/4.);ro.xz*=rm;
-				rd.yz*=rm=rot(time/2.);ro.yz*=rm;
+				rm=rot(time/4.);rd.xz*=rm;ro.xz*=rm;
+				rm=rot(time/2.);rd.yz*=rm;ro.yz*=rm;
 				float m,b,t=.0,f=1.-exp(-.08*time-.1);
 				for(int i=0; i<20; i++)if(t+=0.45*f*(m=map(p=ro+rd*t)),
 				m<.01)break;b=cube(p)-m;
-				gl_FragColor=vec4(f*vec3(1.-b*b,exp(-t),exp(-t/2.)),1);
+				gl_FragColor.xyz=f*vec3(1.-b*b,exp(-t),exp(-t/2.));
 			}
 		</script>
 

@@ -32,11 +32,13 @@ function getShader(id, type) {
 	var shader = gl.createShader(type);
 
 	var shaderScript = document.getElementById(id);
-	gl.shaderSource(shader, shaderScript.innerHTML);
+	gl.shaderSource(shader, shaderScript.innerText);
 	gl.compileShader(shader);
 
-	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
-		alert(gl.getShaderInfoLog(shader));
+	//if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+	//	alert(shaderScript.innerText);
+	//	alert(gl.getShaderInfoLog(shader));
+	//}
 
 	return shader;
 }
@@ -50,8 +52,8 @@ function setupShaders() {
 	gl.attachShader(prog, fsh);
 	gl.linkProgram(prog);
 
-	if (!gl.getProgramParameter(prog, gl.LINK_STATUS))
-		alert("Cannot link program");
+	//if (!gl.getProgramParameter(prog, gl.LINK_STATUS))
+	//	alert("Cannot link program");
 
 	gl.useProgram(prog);
 
