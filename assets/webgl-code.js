@@ -35,10 +35,10 @@ function getShader(id, type) {
 	gl.shaderSource(shader, shaderScript.innerText);
 	gl.compileShader(shader);
 
-	//if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-	//	alert(shaderScript.innerText);
-	//	alert(gl.getShaderInfoLog(shader));
-	//}
+	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+		console.debug(shaderScript.innerText);
+		console.debug(gl.getShaderInfoLog(shader));
+	}
 
 	return shader;
 }
@@ -52,8 +52,8 @@ function setupShaders() {
 	gl.attachShader(prog, fsh);
 	gl.linkProgram(prog);
 
-	//if (!gl.getProgramParameter(prog, gl.LINK_STATUS))
-	//	alert("Cannot link program");
+	if (!gl.getProgramParameter(prog, gl.LINK_STATUS))
+		console.debug("Cannot link program");
 
 	gl.useProgram(prog);
 
@@ -101,7 +101,7 @@ function setupWebGL() {
 	canvas.height = canvas.clientHeight / 5;
 
 	try { gl = canvas.getContext("webgl"); } catch (e) {}
-	if (!gl) alert("Cannot initialize WebGL");
+	if (!gl) console.debug("Cannot initialize WebGL");
 
 	setupShaders();
 
