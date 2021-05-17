@@ -24,8 +24,13 @@ function updateMouse(event)
 			(doc && doc.clientTop  || body && body.clientTop  || 0 );
 	}
 
-	targetX = (canvas.clientWidth - event.pageX) / canvas.clientWidth;
-	targetY = event.pageY / canvas.clientHeight;
+	if (canvas != null && canvas.clientWidth != null) {
+		targetX = (canvas.clientWidth - event.pageX) / canvas.clientWidth;
+		targetY = event.pageY / canvas.clientHeight;
+	} else {
+		targetX = 0.5;
+		targetY = 0.5;
+	}
 }
 
 function getShader(id, type) {
@@ -61,8 +66,8 @@ function setupShaders() {
 	gl.enableVertexAttribArray(posAttribute);
 
 	timeUniform = gl.getUniformLocation(prog, "time");
-	aspectUniform = gl.getUniformLocation(prog, "aspect")
-	mouseUniform = gl.getUniformLocation(prog, "mouse")
+	aspectUniform = gl.getUniformLocation(prog, "aspect");
+	mouseUniform = gl.getUniformLocation(prog, "mouse");
 
 	rect = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, rect);
